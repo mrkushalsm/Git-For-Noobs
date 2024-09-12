@@ -1,1 +1,1 @@
-Amn application that simulates the Git environment!
+An application that simulates the Git environment!
