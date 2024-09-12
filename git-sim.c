@@ -5,15 +5,20 @@
 #include <dirent.h>
 
 int stage_status = 0; // 0 = staging, 1 = not staging
-char stage_files[1000][1000];
-int stage_files_count;
+char *stage_files;
+int commit_count = 0; // For void status()
+
+void status() {
+    printf("On branch master\n\n");
+    // if() TODO
+}
 
 void add(int i, char * argv[]) {
+    *stage_files = (char*)malloc(sizeof(char) * 1000);
     DIR* dir = opendir(".git");
     if(dir) {
         stage_status = 1;
-        stage_files[stage_files_count][0] = argv[i + 1];
-        stage_files_count++;
+        stage_files = argv[i + 1];
     }
     else {
         printf("This directory is not a git repositry!\nUse \"git-sim init\" to add the current directory as a repositry!\n");
