@@ -8,21 +8,12 @@ int stage_status = 0; // 0 = staging, 1 = not staging
 char stage_files[1000][1000];
 int stage_files_count;
 
-void get_dir_list() {
-    printf("TODO");
-}
-
 void add(int i, char * argv[]) {
     DIR* dir = opendir(".git");
     if(dir) {
-        if(!strcmp("--all", argv[i])) {
-            printf("TODO");
-        }
-        else {
-            stage_status = 1;
-            stage_files[stage_files_count][0] = argv[i];
-            stage_files_count++;
-        }
+        stage_status = 1;
+        stage_files[stage_files_count][0] = argv[i + 1];
+        stage_files_count++;
     }
     else {
         printf("This directory is not a git repositry!\nUse \"git-sim init\" to add the current directory as a repositry!\n");
