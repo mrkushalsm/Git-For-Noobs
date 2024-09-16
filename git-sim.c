@@ -76,13 +76,13 @@ int compare_files(char *file1, char *file2) {
 // Changing few lines of code for prototype display purposes, change later
 void clone(char *file_name) {
     char command[1000];
-    snprintf(command, sizeof(command), "robocopy \"%s\\git-sim\\%s.git\" . /COPYALL /NFL /NDL /NJH /NJS", getenv("APPDATA"), file_name);
+    snprintf(command, sizeof(command), "robocopy %s\\git-sim\\%s.git . /COPYALL /NFL /NDL /NJH /NJS", getenv("APPDATA"), file_name);
     system(command);
-    snprintf(command, sizeof(command), "move \"%s\".git \"%s\".tar", file_name, file_name);
+    snprintf(command, sizeof(command), "move %s.git %s.tar", file_name, file_name);
     system(command);
-    snprintf(command, sizeof(command), "tar -xvf \"%s\".tar", file_name, file_name);
+    snprintf(command, sizeof(command), "tar -xvf %s.tar", file_name, file_name);
     system(command);
-    snprintf(command, sizeof(command), "del /Q \"%s\".tar", file_name);
+    snprintf(command, sizeof(command), "del /Q %s.tar", file_name);
     system(command);
 }
 
@@ -99,12 +99,12 @@ void pull() {
         }
     }
     char command[1000];
-    snprintf(command, sizeof(command), "robocopy \"%s\\git-sim\\%s.git\" . /COPYALL /NFL /NDL /NJH /NJS", getenv("APPDATA"), current_folder);
+    snprintf(command, sizeof(command), "copy \"%s\\git-sim\\%s.git\" ..", getenv("APPDATA"), current_folder);
     system(command);
-    snprintf(command, sizeof(command), "move \"%s\".git \"%s\".tar", current_folder, current_folder);
+    snprintf(command, sizeof(command), "move ..\\%s.git ..\\%s.tar", current_folder, current_folder);
     system(command);
-    snprintf(command, sizeof(command), "tar -cf \"%s\"_check.tar \"%s\"", current_folder, current_folder);
-    system(command);
+    // snprintf(command, sizeof(command), "tar -cf %s_check.tar ..\\%s", current_folder, current_folder);
+    // system(command);
 
     // MD5 Method
     // char *file1, *file2;
@@ -121,36 +121,36 @@ void pull() {
     //     printf("Everything up-to-date!\n");
     // }
     // else {
-    //     snprintf(command, sizeof(command), "tar -xvf \"%s\".tar", current_folder, current_folder);
+    //     snprintf(command, sizeof(command), "tar -xvf %s.tar", current_folder, current_folder);
     //     system(command);
     // }
 
-    // Dirty In-efficient Method
-    char *file1, *file2;
-    snprintf(file1, sizeof(file1), "%s_check.tar", current_folder);
-    snprintf(file2, sizeof(file2), "%s.tar", current_folder);
-    FILE *fp1 = fopen(file1, "rb");
-    FILE *fp2 = fopen(file2, "rb");
+    // // Dirty In-efficient Method
+    // char *file1, *file2;
+    // snprintf(file1, sizeof(file1), "%s_check.tar", current_folder);
+    // snprintf(file2, sizeof(file2), "%s.tar", current_folder);
+    // FILE *fp1 = fopen(file1, "rb");
+    // FILE *fp2 = fopen(file2, "rb");
 
-    int result = compare_files(file1, file2);
-    if (result == 1) {
-        printf("Everything up-to-date!\n");
-    }
-    else {
-        snprintf(command, sizeof(command), "tar -xvf \"%s\".tar", current_folder, current_folder);
-        system(command);
-    }
+    // int result = compare_files(file1, file2);
+    // if (result == 1) {
+    //     printf("Everything up-to-date!\n");
+    // }
+    // else {
+    //     snprintf(command, sizeof(command), "tar -xvf ..\\%s.tar -C %s", current_folder, working_dir);
+    //     system(command);
+    // }
 
-    fclose(fp1);
-    fclose(fp2);
+    // fclose(fp1);
+    // fclose(fp2);
 
-    snprintf(command, sizeof(command), "del /Q \"%s\".tar", current_folder);
-    system(command);
-    snprintf(command, sizeof(command), "del /Q \"%s\"_check.tar", current_folder);
+    snprintf(command, sizeof(command), "tar -xvf ..\\%s.tar -C \"%s\" --strip-components=1", current_folder, working_dir);
     system(command);
 
-    free(working_dir);
-    free(current_folder);
+    snprintf(command, sizeof(command), "del /Q ..\\%s.tar", current_folder);
+    system(command);
+    // snprintf(command, sizeof(command), "del /Q %s_check.tar", current_folder, working_dir);
+    // system(command);
 }
 
 void push() {
@@ -165,68 +165,64 @@ void push() {
             current_folder = working_dir;
         }
         char command[1000];
-        snprintf(command, sizeof(command), "tar -cf \"%s\".tar \"%s\"", current_folder, current_folder);
+        snprintf(command, sizeof(command), "tar -cf %s.tar ..\\%s", current_folder, current_folder);
         system(command);
 
-        snprintf(command, sizeof(command), "if exist \"%s\\git-sim\\%s\" (exit /b 0) else (exit /b 1)", current_folder);
-        int result = system(command);
-        if (result == 0) {
-            snprintf(command, sizeof(command), "robocopy \"%s\\git-sim\\%s.git\" . /COPYALL /NFL /NDL /NJH /NJS", getenv("APPDATA"), current_folder);
-            system(command);
-            snprintf(command, sizeof(command), "move \"%s\".git \"%s\"_check.tar", current_folder, current_folder);
-            system(command);
+        // snprintf(command, sizeof(command), "if exist %s\\git-sim\\%s (exit /b 0) else (exit /b 1)", current_folder);
+        // int result = system(command);
+        // if (result == 0) {
+        //     snprintf(command, sizeof(command), "robocopy %s\\git-sim\\%s.git . /COPYALL /NFL /NDL /NJH /NJS", getenv("APPDATA"), current_folder);
+        //     system(command);
+        //     snprintf(command, sizeof(command), "move %s.git %s_check.tar", current_folder, current_folder);
+        //     system(command);
 
-            // MD5 Method
-            // char *file1, *file2;
-            // snprintf(file1, sizeof(file1), "%s_check.tar", current_folder);
-            // snprintf(file2, sizeof(file2), "%s.tar", current_folder);
+        //     // MD5 Method
+        //     // char *file1, *file2;
+        //     // snprintf(file1, sizeof(file1), "%s_check.tar", current_folder);
+        //     // snprintf(file2, sizeof(file2), "%s.tar", current_folder);
 
-            // unsigned char md5_file1[16];
-            // unsigned char md5_file2[16];
+        //     // unsigned char md5_file1[16];
+        //     // unsigned char md5_file2[16];
 
-            // compute_md5(file1, md5_file1);
-            // compute_md5(file2, md5_file2);
+        //     // compute_md5(file1, md5_file1);
+        //     // compute_md5(file2, md5_file2);
 
-            // if (memcmp(md5_file1, md5_file2, 16) == 0) {
-            //     printf("Everything up-to-date!\n");
-            // }
-            // else {
-            //     snprintf(command, sizeof(command), "move \"%s\".tar \"%s\".git", current_folder, current_folder);
-            //     system(command);
-            //     snprintf(command, sizeof(command), "robocopy \"%s\".git \"%s\\git-sim\" /MIR /IS /IT /NFL /NDL", current_folder,  getenv("APPDATA"));
-            //     system(command);
-            // }
+        //     // if (memcmp(md5_file1, md5_file2, 16) == 0) {
+        //     //     printf("Everything up-to-date!\n");
+        //     // }
+        //     // else {
+        //     //     snprintf(command, sizeof(command), "move %s.tar %s.git", current_folder, current_folder);
+        //     //     system(command);
+        //     //     snprintf(command, sizeof(command), "robocopy %s.git %s\\git-sim /MIR /IS /IT /NFL /NDL", current_folder,  getenv("APPDATA"));
+        //     //     system(command);
+        //     // }
 
-            // Dirty In-efficient Method
-            char *file1, *file2;
-            snprintf(file1, sizeof(file1), "%s_check.tar", current_folder);
-            snprintf(file2, sizeof(file2), "%s.tar", current_folder);
-            FILE *fp1 = fopen(file1, "rb");
-            FILE *fp2 = fopen(file2, "rb");
+        //     // Dirty In-efficient Method
+        //     char *file1, *file2;
+        //     snprintf(file1, sizeof(file1), "%s_check.tar", current_folder);
+        //     snprintf(file2, sizeof(file2), "%s.tar", current_folder);
+        //     FILE *fp1 = fopen(file1, "rb");
+        //     FILE *fp2 = fopen(file2, "rb");
 
-            int result = compare_files(file1, file2);
-            if (result == 1) {
-                printf("Everything up-to-date!\n");
-            }
-            else {
-                snprintf(command, sizeof(command), "move \"%s\".tar \"%s\".git", current_folder, current_folder);
-                system(command);
-                snprintf(command, sizeof(command), "robocopy \"%s\".git \"%s\\git-sim\" /MIR /IS /IT /NFL /NDL", current_folder,  getenv("APPDATA"));
-                system(command);
-            }
+        //     int result = compare_files(file1, file2);
+        //     if (result == 1) {
+        //         printf("Everything up-to-date!\n");
+        //     }
+        //     else {
+        //         snprintf(command, sizeof(command), "move %s.tar %s.git", current_folder, current_folder);
+        //         system(command);
+        //         snprintf(command, sizeof(command), "robocopy %s.git %s\\git-sim /MIR /IS /IT /NFL /NDL", current_folder,  getenv("APPDATA"));
+        //         system(command);
+        //     }
 
-            fclose(fp1);
-            fclose(fp2);
-        }
-        else {
-            snprintf(command, sizeof(command), "move \"%s\".tar \"%s\".git", current_folder, current_folder);
-            system(command);
-            snprintf(command, sizeof(command), "robocopy \"%s\".git \"%s\\git-sim\" /MIR /IS /IT /NFL /NDL", current_folder,  getenv("APPDATA"));
-            system(command);
-        }
+        //     fclose(fp1);
+        //     fclose(fp2);
+        // }
+        snprintf(command, sizeof(command), "move %s.tar %s.git", current_folder, current_folder);
+        system(command);
+        snprintf(command, sizeof(command), "move /Y %s.git %s\\git-sim", current_folder,  getenv("APPDATA"));
+        system(command);
     }
-    free(working_dir);
-    free(current_folder);
 }
 
 void commit(char *argv[], int argc) {
@@ -303,9 +299,9 @@ void add(char *argv[], int argc) {
             while (fscanf(file, "%s", buffer) == 1) {
                 char command[1000];
                 // Add these hidden files to .git file to make it more cleaner TODO
-                snprintf(command, sizeof(command), "copy \"%s\" \"%s.bak\"", buffer, buffer);
+                snprintf(command, sizeof(command), "copy %s %s.bak", buffer, buffer);
                 system(command);
-                snprintf(command, sizeof(command), "attrib +h \"%s\"", buffer);
+                snprintf(command, sizeof(command), "attrib +h %s.bak", buffer);
                 system(command);
                 stage_files[word_count] = (char *)malloc((strlen(buffer) + 1) * sizeof(char)); 
                 strcpy(stage_files[word_count], buffer); 
@@ -313,11 +309,7 @@ void add(char *argv[], int argc) {
             }
             stage_files_no = word_count;
             fclose(file); 
-            for (int i = 0; i < word_count; i++) { 
-                free(stage_files[i]);
-            } 
-            free(stage_files);
-            system("del stage_files.txt");
+            // system("del stage_files.txt");
         }
         else {
             for(int i = 2; i <= argc; i++)
@@ -325,7 +317,7 @@ void add(char *argv[], int argc) {
         }
     }
     else {
-        printf("This directory is not a git repositry!\nUse \"git-sim init\" to add the current directory as a repositry!\n");
+        printf("This directory is not a git repositry!\nUse git-sim init to add the current directory as a repositry!\n");
     }
 }
 
@@ -344,14 +336,13 @@ void init() {
         else {
             printf("Error intializing %s as git repositry!\n", working_dir);
         }
-        free(working_dir);
     }
 }
 
 int main(int argc, char *argv[]) {
     // Add checking system for if git-sim already exists
     // char git_sim[1000];
-    // snprintf(git_sim, sizeof(git_sim),"if not exist \"%s\\git-sim\" (mkdir \"%s\\git-sim\")", getenv("APPDATA"), getenv("APPDATA"));
+    // snprintf(git_sim, sizeof(git_sim),"if not exist %s\\git-sim (mkdir %s\\git-sim)", getenv("APPDATA"), getenv("APPDATA"));
     // int initiate = system(git_sim);
     // if(initiate != - 1) {
     //     printf("Local hosted Git repository for simulation created!\n");
