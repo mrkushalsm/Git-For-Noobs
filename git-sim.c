@@ -14,7 +14,8 @@
 
 int stage_status = 0; // 0 = staging, 1 = not staging
 char **stage_files;
-int stage_files_no;
+int stage_files_no = 0;
+int commit_state = 0; // 0 = commit, 1 = not commit
 
 int compare_files(char *file1, char *file2) {
     FILE *fp1 = fopen(file1, "rb");
@@ -236,10 +237,14 @@ void commit(char *argv[], int argc) {
     }
     rand_str[length] = '\0';
 
+    printf("%d\n", stage_files_no);
+
     int additions = 0, deletions = 0;
     for(int i = 0; i < stage_files_no; i++) {
         char *file1_name = stage_files[i];
-        char *file2_name = stage_files[i];
+        char file2_name_temp[1000];
+        snprintf(file2_name_temp, sizeof(file2_name_temp), "%s.bak", file1_name);
+        char *file2_name = file2_name_temp;
         FILE *file1 = fopen(file1_name, "r");
         FILE *file2 = fopen(file2_name, "r");
 
@@ -272,14 +277,14 @@ void commit(char *argv[], int argc) {
 
     if(strcmp(argv[2], "-m")) {
         printf("[master  (root-commit) %s] %s\n", rand_str, argv[3]);
-        printf(" %d files changed,");
-        if(additions > 0) {
-            printf(" %d insertions,", additions);
-        }
-        if(deletions > 0) {
-            printf(" %d deletions,", deletions);
-        }
-        printf("\n");
+        printf(" %d files changed,  5 insertions(+)\n");
+        // if(additions > 0) {
+        //     printf(" %d insertions(+),", additions);
+        // }
+        // if(deletions > 0) {
+        //     printf(" %d deletions(-),", deletions);
+        // }
+        // printf("\n");
     }
 }
 
@@ -294,20 +299,17 @@ void add(char *argv[], int argc) {
             if (file == NULL) { 
                 printf("Error opening file.\n"); 
             }
-            int word_count = 0; 
-            char buffer[50]; 
-            while (fscanf(file, "%s", buffer) == 1) {
+            char line[1000];
+            while (fgets(line, sizeof(line), file) != NULL) {
                 char command[1000];
+                sscanf(line, "%s", stage_files[stage_files_no]);
                 // Add these hidden files to .git file to make it more cleaner TODO
-                snprintf(command, sizeof(command), "copy %s %s.bak", buffer, buffer);
+                snprintf(command, sizeof(command), "copy %s %s.bak", line);
                 system(command);
-                snprintf(command, sizeof(command), "attrib +h %s.bak", buffer);
+                snprintf(command, sizeof(command), "attrib +h %s.bak", line);
                 system(command);
-                stage_files[word_count] = (char *)malloc((strlen(buffer) + 1) * sizeof(char)); 
-                strcpy(stage_files[word_count], buffer); 
-                word_count++; 
+                stage_files_no++;
             }
-            stage_files_no = word_count;
             fclose(file); 
             // system("del stage_files.txt");
         }
@@ -319,6 +321,7 @@ void add(char *argv[], int argc) {
     else {
         printf("This directory is not a git repositry!\nUse git-sim init to add the current directory as a repositry!\n");
     }
+    system("del /Q stage_files.txt");
 }
 
 void init() {
@@ -351,10 +354,10 @@ int main(int argc, char *argv[]) {
     //     }
     // }
 
-    if (argc < 2) {
-        printf("Usage: git-sim <command> [options]\n");
-        return 1;
-    }
+    // if (argc < 2) {
+    //     printf("Usage: git-sim <command> [options]\n");
+    //     return 1;
+    // }
     if (!strcmp(argv[1], "--version")) {
         printf("git simulated version 1.0.0\n");
     }
@@ -364,7 +367,7 @@ int main(int argc, char *argv[]) {
     else if (!strcmp(argv[1], "add")) {
         add(argv, argc);
     }
-    else if (!strcmp(argv[1], "commit")) {
+    else if (1) {//!strcmp(argv[1], "commit")
         commit(argv, argc);
     }
     else if (!strcmp(argv[1], "push")) {
